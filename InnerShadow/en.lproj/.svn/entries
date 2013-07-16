@@ -1,0 +1,42 @@
+10
+
+dir
+0
+svn+ssh://projects.coriolis-systems.com/general/CSMultiprecision/trunk/InnerShadow/InnerShadow/en.lproj
+svn+ssh://projects.coriolis-systems.com/general
+add
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+856b48a5-dff0-0310-b91c-9f55bfd2a469
+
+InfoPlist.strings
+file
+
+
+
+add
+
+JHSViewController.xib
+file
+
+
+
+add
+
