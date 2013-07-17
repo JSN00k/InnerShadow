@@ -233,6 +233,7 @@
   CGContextAddPath (ctx, shape);
   CGContextClip (ctx);
   
+  CGColorSpaceRef rgbSpace = CGColorSpaceCreateDeviceRGB ();
   /* Really we should make a method to draw the content of the rounded rect at
      this point. It could work like the CALayer draw: method and try messaging
      a delegate as well. */
@@ -261,8 +262,6 @@
   CFRelease (image);
   CFRelease (pngData);
 #else
-  
-  CGColorSpaceRef rgbSpace = CGColorSpaceCreateDeviceRGB ();
   CGFloat gradVals[] = { 130.0 / 255.0, 140.0 / 255.0, 150.0 / 255.0, 1.0, 90.0 / 255.0, 100 / 255.0, 110.0 / 255.0, 1.0 };
   CGGradientRef grad = CGGradientCreateWithColorComponents (rgbSpace,
                                                             gradVals,
@@ -278,9 +277,11 @@
   CFRelease (grad);
 #endif
   
-  /* Now lets do the inside shadow! Draw a path just around the outside of the 
-     area that we have just clipped. The shadow from the path will go into the
-     clipped area, but the path won't so we only get the shadow. */
+  /* Now lets do the inside shadow! Draw a rect arround the outside of our
+     original path but in the oposite direction close this rect, then add the
+     original shape to our path. When we fill the path the Non-Zero Winding Rule
+     will mean that we only fill in the area bewteen the rect and the original
+     shape. */
 
   CGFloat pathWidth = [self insideShadowRadius];
   CGSize shadowSize = [self insideShadowSize];
@@ -303,11 +304,19 @@
   CGContextAddPath (ctx, shape);
   
   CGColorRef insideShadowCol = [self insideShadowCol];
-  CGContextSetFillColorWithColor (ctx, insideShadowCol);
+  CGFloat  fillColorVals[] = { 0.0, 0.0, 0.0, 1.0 };
+  CGColorRef fillColor = CGColorCreate  (rgbSpace,
+                                         fillColorVals);
+  
+  CGContextSetFillColorWithColor (ctx, fillColor);
   CGContextSetShadowWithColor (ctx, shadowSize,
                                [self insideShadowRadius], insideShadowCol);
   CGContextFillPath (ctx);
   CFRelease (shape);
+  CFRelease (fillColor);
+  CFRelease (rgbSpace);
+  
+  /* Restore the graphics context to its original state. */
   CGContextRestoreGState (ctx);
 }
 
