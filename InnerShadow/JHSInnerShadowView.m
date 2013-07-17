@@ -289,39 +289,26 @@
   pathWidth += shadowHeightAbs > shadowWidthAbs ? shadowHeightAbs : shadowWidthAbs;
   
   CGFloat halfPathWidth = 0.5 * pathWidth;
-  CGContextSetLineWidth (ctx, pathWidth);
-  cornerRadius += halfPathWidth;
   topEdge = yMin + indent - halfPathWidth;
   bottomEdge = yMax - indent + halfPathWidth;
   leftEdge = xMin + indent - halfPathWidth;
   rightEdge = xMax - indent + halfPathWidth;
+  
+  /* Use the winding Rule to fill in an area arround our inital shade. The 
+     default winding rule is the non-zero winding rule which will do exactly 
+     what we want. */
 
-  CGContextMoveToPoint (ctx, xMax - indent - cornerRadius,
-                        topEdge);
-  CGContextAddArcToPoint (ctx, leftEdge,
-                          topEdge,
-                          leftEdge,
-                          topEdge + cornerRadius,
-                          cornerRadius);
-  CGContextAddArcToPoint (ctx, leftEdge,
-                          bottomEdge,
-                          leftEdge + cornerRadius,
-                          bottomEdge,
-                          cornerRadius);
-  CGContextAddArcToPoint (ctx, rightEdge, bottomEdge, rightEdge,
-                          bottomEdge - cornerRadius,
-                          cornerRadius);
-  CGContextAddArcToPoint (ctx, rightEdge, topEdge,
-                          rightEdge - cornerRadius,
-                          topEdge,
-                          cornerRadius);
-  CGContextClosePath (ctx);
+  CGContextAddRect (ctx, CGRectMake (rightEdge, bottomEdge,
+                                     leftEdge - rightEdge, topEdge - bottomEdge));
+  CGContextAddPath (ctx, shape);
   
   CGColorRef insideShadowCol = [self insideShadowCol];
-  CGContextSetStrokeColorWithColor (ctx, insideShadowCol);
+  CGContextSetFillColorWithColor (ctx, insideShadowCol);
   CGContextSetShadowWithColor (ctx, shadowSize,
                                [self insideShadowRadius], insideShadowCol);
-  CGContextStrokePath (ctx);
+  CGContextFillPath (ctx);
+  CFRelease (shape);
+  CGContextRestoreGState (ctx);
 }
 
 @end
